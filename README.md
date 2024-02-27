@@ -25,7 +25,7 @@ https://valhall-proj.onrender.com
 9. If you wish to logout press the logout button on the navigation bar
 
 ## Admin guide
-### base admin account ( username : admin ; password : admin )
+### base admin account ( username : olzhas ; password : admin )
 1. Use already existing admin account to login into the admin panel
 2. You can swap between teams and user control in the navigation bar to relative names
 3. The list of the users provided on the page, as well as available actions
