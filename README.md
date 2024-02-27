@@ -1,7 +1,9 @@
-# Weather Application
+# Valorant Esports Hub
+## Render was throwing an error
+Sorry for 5sec late submission, render was throwing error on bcrypt node module for some unknown reason, so i had to swap it to bcryptjs
 
 ## Deployed Link
-- 
+https://valhall-proj.onrender.com
 
 ## Installation guide
 1. Clone the repository.
@@ -42,9 +44,10 @@
 10. Axios
 11. Morgan
 12. Mongoose
+13. BcryptJS
 
 ## API
-1. WeatherAPI
-2. OpenWeatherAPI
-3. OpenUVAPI
-4. GoogleMapsAPI
+1. RestAPI
+2. HoroscopeAPI
+3. CoinflipAPI
+4. i18next
