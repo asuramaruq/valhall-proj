@@ -20,10 +20,11 @@ https://valhall-proj.onrender.com
 4. If you wish you can change the language of the output for the name and description of the teams using selector on the left side of navbar
 5. If search, enter the specific name with no spelling/grammatic errors either on russian or english and press the button
 6. If go through items, press More Info button under the specific team to get more information on them
-7. If you wish to check you weekly horoscope or coinflup proceed to Mystery tab
+7. If you wish to check you weekly horoscope proceed to Mystery tab
 8. Enter your sign in english/lower case/no errors and press the button
-9. Press the button to coinflip
-10. If you wish to logout press the logout button on the navigation bar
+9. If you wish conflip proceed to Mystery tab
+10. Press the button to coinflip
+11. If you wish to logout press the logout button on the navigation bar
 
 ## Admin guide
 ### base admin account ( username : olzhas ; password : admin )
