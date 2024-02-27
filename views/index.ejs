@@ -70,6 +70,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#" onclick="toggleForm('mystery');">Mystery</a>                
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="toggleForm('coinflip');">Coin Flip</a>                
+                </li>
             </ul>
         </div>
         <div class="navbar-nav ml-auto">
@@ -135,7 +138,11 @@
         </div>
         <div class="row">
         </div>
-        <button type="button" class="btn btn-primary mt-4" id="coinFlipButton">Flip a Coin</button>
+    </div>
+
+    <div class="container-fluid py-5 my-0 text-center" style="display:none;" id="coinflip">
+        <h3 class="text-center mb-4">Coin Flip</h3>
+        <button type="button" class="btn btn-primary" id="coinFlipButton">Flip a Coin</button>
         <div class="form-group mt-4">
             <input type="text" class="form-control" id="coinFlipOutput" readonly>
         </div>
@@ -258,13 +265,20 @@
     function toggleForm(formId) {
         var teamsForm = document.getElementById('teams');
         var mysteryForm = document.getElementById('mystery');
+        var coinflipForm = document.getElementById('coinflip');
 
         if (formId === 'teams') {
             teamsForm.style.display = 'block';
             mysteryForm.style.display = 'none';
-        } else {
+            coinflipForm.style.display = 'none';
+        } else if (formId === 'mystery') {
             teamsForm.style.display = 'none';
             mysteryForm.style.display = 'block';
+            coinflipForm.style.display = 'none';
+        } else {
+            teamsForm.style.display = 'none';
+            mysteryForm.style.display = 'none';
+            coinflipForm.style.display = 'block';
         }
 
         sessionStorage.setItem('currentForm', formId);
