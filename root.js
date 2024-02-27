@@ -8,7 +8,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('./model/usermodel');
 const Team = require('./model/teammodel');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const axios = require('axios');
 
 
@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
 
 app.post("/registration", async (req, res) => {
     const {username, password} = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10); 
     const newUser = new User({
         username,
         password: hashedPassword,
