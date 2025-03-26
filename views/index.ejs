@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>valhall</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>    
+    <link rel="icon" href="/icon.png?v=2">
+    <style>
+        body {
+            background: url('/bg.jpg') no-repeat center center fixed; 
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+            background-color: rgba(0, 0, 0, 0.5);
+            background-blend-mode: darken;
+        }
+
+        .navbar-brand img {
+            margin-right: 10px;
+            margin-left: 20px;
+        }
+
+        .input-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            color: #333;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #teamCards .card {
+            height: 100%;
+            min-height: 350px;
+        }
+        #teamCards .carousel-item img {
+            height: 50%;
+            min-height: 400px;
+            object-fit: cover;
+        }
+
+        #teamCards .card-title, #teamCards .card-text {
+            margin-top: 10px;
+        }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="/icon.png" alt="" width="28" height="28" class="d-inline-block align-top">
+            hahaWeather
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#" onclick="toggleForm('teams')">Main</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="toggleForm('mystery');">Mystery</a>                
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="toggleForm('coinflip');">Coin Flip</a>                
+                </li>
+            </ul>
+        </div>
+        <div class="navbar-nav ml-auto">
+            <select id="languageSelect" onchange="changeLanguage()">
+                <option value="en">English</option>
+                <option value="ru">Russian</option>
+            </select>
+            <a class="nav-link" href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-0 py-5 my-0 text-center" id="teams">
+        <h1 class="mb-5 text-white">Search for your favorite esports team</h1>
+        <div class="card mx-auto input-card">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="teamInput">Enter Team Name:</label>
+                    <input type="text" class="form-control" id="teamInput">
+                </div>
+                <button type="button" class="btn btn-primary btn-block" id="button1">Search</button>
+            </div>
+        </div>
+        <div class="row my-5 mx-5" id="teamCards">
+            <% teams.forEach((team, teamIndex) => { %>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                    <div class="card h-100">
+                        <div id="carousel<%= teamIndex %>" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                <% team.pictures.forEach((picture, index) => { %>
+                                    <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                                        <img src="<%= picture %>" class="d-block w-100" style="height: 150px; object-fit: cover;" alt="...">
+                                    </div>
+                                <% }) %>
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel<%= teamIndex %>" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carousel<%= teamIndex %>" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title"><%= team.names[language] %></h5>
+                            <p class="card-text"><%= team.descriptions[language] %></p>
+                            <button type="button" class="btn btn-primary" onclick="showTeamInfo('<%= team._id %>', '<%= language %>')">More Info</button>                     
+                        </div>
+                    </div>
+                </div>
+            <% }) %>  
+        </div>
+    </div>
+
+    <div class="container-fluid py-5 my-0 text-center" style="display:none;" id="mystery">
+        <h3 class="text-center mb-4">Mystery</h3>
+        <div class="form-group">
+            <input type="text" class="form-control" id="signInput" placeholder="Enter your sign">
+        </div>
+        <button type="button" class="btn btn-primary" id="mysteryButton">Get Horoscope</button>
+        <div class="form-group mt-4">
+            <textarea class="form-control" id="mysteryOutput" rows="5" readonly></textarea>
+        </div>
+        <div class="row">
+        </div>
+    </div>
+
+    <div class="container-fluid py-5 my-0 text-center" style="display:none;" id="coinflip">
+        <h3 class="text-center mb-4">Coin Flip</h3>
+        <button type="button" class="btn btn-primary" id="coinFlipButton">Flip a Coin</button>
+        <div class="form-group mt-4">
+            <input type="text" class="form-control" id="coinFlipOutput" readonly>
+        </div>
+    </div>
+
+    <div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="teamModalLabel">Team Info</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="teamModalContent">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-dark text-white fixed-bottom text-center">
+        <div class="container">
+            <span>Imangeldin Olzhas SE-2201</span>
+        </div>
+    </footer>
+
+</body>
+
+
+<script src="https://unpkg.com/i18next@19.9.2/i18next.min.js"></script>
+<script src="https://unpkg.com/i18next-http-backend@1.2.6/i18nextHttpBackend.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script type="module" src="/main.js"></script>
+
+<script>
+    document.getElementById('button1').addEventListener('click', async () => {
+        const teamName = document.getElementById('teamInput').value;
+
+        try {
+            const response = await fetch(`/teams?name=${teamName}`);
+            const data = await response.json();
+
+            if (data.team) {
+                var language = sessionStorage.getItem('language') || 'en';
+                showTeamInfo(data.team._id, language);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Team does not exist in the database!',
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+    document.getElementById('mysteryButton').addEventListener('click', async () => {
+        var sign = document.getElementById('signInput').value;
+        try {
+            const response = await fetch(`/horoscope/${sign}`);
+            const data = await response.json();
+            document.getElementById('mysteryOutput').value = JSON.stringify(data, null, 2);
+        } catch (error) {
+            console.error(error);
+        }
+    });
+    
+    document.getElementById('coinFlipButton').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/coinflip');
+            const data = await response.json();
+            document.getElementById('coinFlipOutput').value = data.outcome;
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+    async function showTeamInfo(teamId, language) {
+        try {
+            const response = await fetch(`/teams/${teamId}`);
+            const data = await response.json();
+
+            document.getElementById("teamModalContent").innerHTML = `
+                <div id="carousel${teamId}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        ${data.team.pictures.map((picture, index) => `
+                            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                <img src="${picture}" class="d-block w-100" alt="...">
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel${teamId}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel${teamId}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+                <h5>${data.team.names[language]}</h5>
+                <p>${data.team.descriptions[language]}</p>
+                <p>Players: ${data.team.players.join(', ')}</p>
+                <p>Coach: ${data.team.coach}</p>
+            `;
+
+            var teamModal = new bootstrap.Modal(document.getElementById('teamModal'));
+            teamModal.show();
+
+            var carouselElement = document.getElementById(`carousel${teamId}`);
+            var carousel = new bootstrap.Carousel(carouselElement);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    function toggleForm(formId) {
+        var teamsForm = document.getElementById('teams');
+        var mysteryForm = document.getElementById('mystery');
+        var coinflipForm = document.getElementById('coinflip');
+
+        if (formId === 'teams') {
+            teamsForm.style.display = 'block';
+            mysteryForm.style.display = 'none';
+            coinflipForm.style.display = 'none';
+        } else if (formId === 'mystery') {
+            teamsForm.style.display = 'none';
+            mysteryForm.style.display = 'block';
+            coinflipForm.style.display = 'none';
+        } else {
+            teamsForm.style.display = 'none';
+            mysteryForm.style.display = 'none';
+            coinflipForm.style.display = 'block';
+        }
+
+        sessionStorage.setItem('currentForm', formId);
+    }
+
+    window.onload = function() {
+        var currentForm = sessionStorage.getItem('currentForm');
+        if (currentForm) {
+            toggleForm(currentForm);
+        }
+    };
+
+    function changeLanguage() {
+        var languageSelect = document.getElementById('languageSelect');
+        var selectedLanguage = languageSelect.options[languageSelect.selectedIndex].value;
+        sessionStorage.setItem('language', selectedLanguage);
+        location.reload();
+    }
+
+    window.onload = function() {
+        var language = sessionStorage.getItem('language');
+        if (language) {
+            document.getElementById('languageSelect').value = language;
+        }
+    };
+</script>
+
+</html>

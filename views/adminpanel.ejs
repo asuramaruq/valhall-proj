@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%;
+            max-width: 500px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+
+        .modal-content label,
+        .modal-content input,
+        .modal-content button {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    </style>
+
+</head>
+
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="/icon.png" alt="" width="28" height="28" class="d-inline-block align-top">
+            hahaWeather
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#" onclick="toggleForm('users')">Users</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="toggleForm('teams')">Teams</a>
+                </li>
+            </ul>
+        </div>
+        <div class="navbar-nav ml-auto">
+            <a class="nav-link" href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container" id="users">
+        <h1>Admin Panel</h1>
+        <button class="btn btn-success mb-3" onclick="showAddUserForm()">Add User</button>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(let i = 0; i < users.length; i++) { %>
+                    <tr>
+                        <th scope="row"><%= i + 1 %></th>
+                        <td><%= users[i].username %></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="showEditUserForm('<%= users[i]._id %>')">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteUser('<%= users[i]._id %>')">Delete</button>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container" id="teams" style="display: none;">
+        <h1>Teams</h1>
+        <button class="btn btn-success mb-3" onclick="showAddTeamForm()">Add Team</button>
+        <div class="row mt-5" id="teamCards">
+            <% teams.forEach((team, teamIndex) => { %>
+                <div class="col-12 col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <!-- ... carousel ... -->
+                        <div class="card-body">
+                            <h5 class="card-title"><%= team.names.en %></h5>
+                            <p class="card-text"><%= team.descriptions.en %></p>
+                            <button class="btn btn-primary" onclick="showEditTeamForm('<%= team._id %>')">Edit</button>                            
+                            <button class="btn btn-danger" onclick="deleteTeam('<%= team._id %>')">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>  
+        </div>
+    </div>
+
+    <div id="userForm" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="userFormContent">
+            </form>
+        </div>
+    </div>
+
+    <div id="teamForm" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="teamFormContent">
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-dark text-white fixed-bottom text-center">
+        <div class="container">
+            <span>Imangeldin Olzhas SE-2201</span>
+        </div>
+    </footer>
+</body>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script>
+    var userModal = document.getElementById("userForm");
+    var teamModal = document.getElementById("teamForm");
+
+    var span = document.getElementsByClassName("close")[0];
+
+
+    span.onclick = function() {
+        userModal.style.display = "none";
+        teamModal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == userModal) {
+            userModal.style.display = "none";
+        }
+        if (event.target == teamModal) {
+            teamModal.style.display = "none";
+        }
+    }
+
+    function showAddUserForm() {
+        document.getElementById("userFormContent").innerHTML = '';
+
+        document.getElementById("userFormContent").innerHTML = `
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <label for="isAdmin">Admin:</label>
+            <input type="checkbox" id="isAdmin" name="isAdmin">
+            <button type="submit" onclick="addUser()">Add User</button>
+        `;
+
+        userModal.style.display = "block";
+    }
+
+    async function showEditUserForm(userId) {
+        try {
+            const response = await fetch(`/users/${userId}`);
+            const data = await response.json();
+
+            document.getElementById("userFormContent").innerHTML = `
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" value="${data.user.username}" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <label for="isAdmin">Admin:</label>
+                <input type="checkbox" id="isAdmin" name="isAdmin" ${data.user.isAdmin ? 'checked' : ''}>
+                <button type="submit" onclick="updateUser('${userId}')">Save Changes</button>
+            `;
+
+            userModal.style.display = "block";
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    function addUser() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const isAdmin = document.getElementById('isAdmin').checked;
+
+        fetch('/addUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password, isAdmin }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            setTimeout(() => location.reload(), 1000);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function updateUser(userId) {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const isAdmin = document.getElementById('isAdmin').checked;
+
+        fetch(`/updateUser/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password, isAdmin }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            setTimeout(() => location.reload(), 1000);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function deleteUser(userId) {
+        fetch(`/deleteUser/${userId}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            location.reload();
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function addTeam() {
+        const names_en = document.getElementById('names_en').value;
+        const names_ru = document.getElementById('names_ru').value;
+        const descriptions_en = document.getElementById('descriptions_en').value;
+        const descriptions_ru = document.getElementById('descriptions_ru').value;
+        const pictures = document.getElementById('pictures').value.split(', ');
+        const players = document.getElementById('players').value.split(', ');
+        const coach = document.getElementById('coach').value;
+
+        fetch('/addTeam', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ names: { en: names_en, ru: names_ru }, descriptions: { en: descriptions_en, ru: descriptions_ru }, pictures, players, coach }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            setTimeout(() => location.reload(), 1000);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+    
+    function showAddTeamForm() {
+        document.getElementById("teamFormContent").innerHTML = `
+            <label for="names_en">Name (EN):</label>
+            <input type="text" id="names_en" name="names_en" required>
+            <label for="names_ru">Name (RU):</label>
+            <input type="text" id="names_ru" name="names_ru" required>
+            <label for="descriptions_en">Description (EN):</label>
+            <input type="text" id="descriptions_en" name="descriptions_en" required>
+            <label for="descriptions_ru">Description (RU):</label>
+            <input type="text" id="descriptions_ru" name="descriptions_ru" required>
+            <label for="pictures">Pictures:</label>
+            <input type="text" id="pictures" name="pictures" required>
+            <label for="players">Players:</label>
+            <input type="text" id="players" name="players" required>
+            <label for="coach">Coach:</label>
+            <input type="text" id="coach" name="coach" required>
+            <button type="submit" onclick="addTeam()">Add Team</button>
+        `;
+
+        teamModal.style.display = "block";
+    }
+
+    async function showEditTeamForm(teamId) {
+        try {
+            const response = await fetch(`/teams/${teamId}`);
+            const data = await response.json();
+
+            document.getElementById("teamFormContent").innerHTML = `
+                <label for="names_en">Name (EN):</label>
+                <input type="text" id="names_en" name="names_en" value="${data.team.names.en}" required>
+                <label for="names_ru">Name (RU):</label>
+                <input type="text" id="names_ru" name="names_ru" value="${data.team.names.ru}" required>
+                <label for="descriptions_en">Description (EN):</label>
+                <input type="text" id="descriptions_en" name="descriptions_en" value="${data.team.descriptions.en}" required>
+                <label for="descriptions_ru">Description (RU):</label>
+                <input type="text" id="descriptions_ru" name="descriptions_ru" value="${data.team.descriptions.ru}" required>
+                <label for="pictures">Pictures:</label>
+                <input type="text" id="pictures" name="pictures" value="${data.team.pictures.join(', ')}" required>
+                <label for="players">Players:</label>
+                <input type="text" id="players" name="players" value="${data.team.players.join(', ')}" required>
+                <label for="coach">Coach:</label>
+                <input type="text" id="coach" name="coach" value="${data.team.coach}" required>
+                <button type="submit" onclick="updateTeam('${teamId}')">Save Changes</button>
+            `;
+
+            teamModal.style.display = "block";
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    function updateTeam(teamId) {
+        const names_en = document.getElementById('names_en').value;
+        const names_ru = document.getElementById('names_ru').value;
+        const descriptions_en = document.getElementById('descriptions_en').value;
+        const descriptions_ru = document.getElementById('descriptions_ru').value;
+        const pictures = document.getElementById('pictures').value.split(', ');
+        const players = document.getElementById('players').value.split(', ');
+        const coach = document.getElementById('coach').value;
+
+        fetch(`/updateTeam/${teamId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ names: { en: names_en, ru: names_ru }, descriptions: { en: descriptions_en, ru: descriptions_ru }, pictures, players, coach }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            setTimeout(() => location.reload(), 1000);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function deleteTeam(teamId) {
+        fetch(`/deleteTeam/${teamId}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            location.reload();
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function toggleForm(formId) {
+        var usersForm = document.getElementById('users');
+        var teamsForm = document.getElementById('teams');
+
+        if (formId === 'users') {
+            usersForm.style.display = 'block';
+            teamsForm.style.display = 'none';
+        } else {
+            usersForm.style.display = 'none';
+            teamsForm.style.display = 'block';
+        }
+
+        sessionStorage.setItem('currentForm', formId);
+    }
+
+    window.onload = function() {
+        var currentForm = sessionStorage.getItem('currentForm');
+        if (currentForm) {
+            toggleForm(currentForm);
+        }
+    }
+</script>
+
+</html>
